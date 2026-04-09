@@ -1,3 +1,4 @@
+import urllib.parse
 from datetime import datetime
 from functools import lru_cache
 
@@ -64,6 +65,14 @@ class Bangumi(object):
             image = images.get("large")
         else:
             image = ''
+        # 转换为代理URL格式
+        if image:
+            try:
+                from config import Config
+                if Config().get_image_proxy_enabled():
+                    image = f"/img/bgm/{urllib.parse.quote(image, safe='')}"
+            except Exception:
+                pass
         summary = item.get("summary")
         return {
             'id': "BG:%s" % bid,

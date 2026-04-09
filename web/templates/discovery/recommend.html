@@ -122,16 +122,16 @@
                       card-tmdbId="${item.id}"
                       card-mediatype="${item.type}"
                       card-showSub="1"
-                      card-image=${'/img?url='+item.image}
-                      card-weekday="${item.weekday}"
-                      card-fav="${item.fav}"
-                      card-vote="${item.vote}"
-                      card-year="${item.year}"
-                      card-title="${item.title}"
-                      card-overview="${item.overview}"
-                      card-restype="${item.media_type}"
-                      card-date="${item.date}"
-                      card-site="${item.site}"
+                      card-image="${item.image || ''}"
+                      card-weekday="${item.weekday || ''}"
+                      card-fav="${item.fav || ''}"
+                      card-vote="${item.vote || ''}"
+                      card-year="${item.year || ''}"
+                      card-title="${item.title || ''}"
+                      card-overview="${item.overview || ''}"
+                      card-restype="${item.media_type || ''}"
+                      card-date="${item.date || ''}"
+                      card-site="${item.site || ''}"
                     ></normal-card>`;
         $("#recommend_content").append(html);
       }

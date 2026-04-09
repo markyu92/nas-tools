@@ -118,10 +118,49 @@ export class PageDiscovery extends CustomElement {
           self.discovery_type + item.title,
           { "type": item.type, "subtype": item.subtype, "page": 1, "week": item.week},
           (ret) => {
-            this._slide_card_list = {...this._slide_card_list, [item.title]: ret.Items};
+            if (ret.Items) {
+              this._slide_card_list = {...this._slide_card_list, [item.title]: ret.Items};
+              // 自动预加载图片到缓存
+              this._preloadImages(ret.Items, item.subtype);
+            }
           }
        );
     }
+  }
+
+  /**
+   * 批量预加载图片到本地缓存
+   */
+  _preloadImages(items, subtype) {
+    if (!items || items.length === 0) return;
+    
+    // 提取图片URL和来源
+    const imageUrls = [];
+    const source = subtype === 'bangumi' ? 'bgm' :
+                   (subtype.startsWith('db') ? 'douban' : 'tmdb');
+    
+    for (const item of items) {
+      if (item.image && !item.image.startsWith('/img/')) {
+        // 外部URL，需要预加载
+        imageUrls.push(item.image);
+      }
+    }
+    
+    if (imageUrls.length === 0) return;
+    
+    // 调用预加载API（最多20张）
+    const urlsToLoad = imageUrls.slice(0, 20);
+    fetch('/img/preload', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        urls: urlsToLoad,
+        source: source
+      })
+    }).catch(err => {
+      // 静默失败，不影响用户体验
+      console.debug('图片预加载失败:', err);
+    });
   }
 
   render() {

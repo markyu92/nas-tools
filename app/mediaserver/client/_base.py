@@ -165,11 +165,59 @@ class _IMediaClient(metaclass=ABCMeta):
     def get_nt_image_url(url, remote=False):
         """
         获取NT中转内网图片的地址
+        优先使用本地文件缓存代理（/img/tmdb/, /img/douban/, /img/bgm/）
+        对于其他图片使用旧的 Redis 缓存代理（/img?url=）
         :param: url: 图片的URL
         :param: remote: 是否需要返回完整的URL
         """
         if not url:
             return ""
+        
+        # 检查是否启用了新的图片代理
+        try:
+            from config import Config
+            if Config().get_image_proxy_enabled():
+                # 处理 TMDB 图片
+                if 'image.tmdb.org' in url:
+                    # 提取路径部分
+                    import re
+                    match = re.search(r'/t/p/(\w+)(/.+)', url)
+                    if match:
+                        size = match.group(1)
+                        path = match.group(2).lstrip('/')
+                        proxy_url = f"/img/tmdb/{size}/{path}"
+                        if remote:
+                            domain = Config().get_domain()
+                            if domain:
+                                return f"{domain}{proxy_url}"
+                        return proxy_url
+                
+                # 处理豆瓣图片
+                if 'doubanio.com' in url or 'douban.com' in url:
+                    import urllib.parse
+                    encoded_path = urllib.parse.quote(url, safe='')
+                    proxy_url = f"/img/douban/{encoded_path}"
+                    if remote:
+                        domain = Config().get_domain()
+                        if domain:
+                            return f"{domain}{proxy_url}"
+                    return proxy_url
+                
+                # 处理 Bangumi 图片
+                if 'lain.bgm.tv' in url:
+                    import urllib.parse
+                    encoded_path = urllib.parse.quote(url, safe='')
+                    proxy_url = f"/img/bgm/{encoded_path}"
+                    if remote:
+                        domain = Config().get_domain()
+                        if domain:
+                            return f"{domain}{proxy_url}"
+                    return proxy_url
+        except Exception as e:
+            import log
+            log.error(f"【get_nt_image_url】处理图片代理失败: {str(e)}")
+        
+        # 默认使用旧的 Redis 缓存代理
         if remote:
             domain = Config().get_domain()
             if domain:

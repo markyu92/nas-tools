@@ -33,6 +33,79 @@ export class NormalCard extends observeState(CustomElement) {
     this._placeholder = true;
     this._card_image_error = false;
     this._card_id = Symbol("normalCard_data_card_id");
+    this._observer = null;
+  }
+
+  firstUpdated() {
+    // 设置懒加载观察器
+    if (this.lazy === "1" && this.image && !this.image.startsWith('/static')) {
+      this._setupLazyLoading();
+    } else if (this.lazy !== "1") {
+      // 非懒加载模式，图片直接加载
+      const img = this.renderRoot.querySelector('img');
+      if (img) {
+        if (this.image && !this.image.startsWith('/static')) {
+          // 有图片URL，设置事件监听
+          img.onload = () => { this._placeholder = false; };
+          img.onerror = () => {
+            img.src = Golbal.noImage;
+            this._card_image_error = true;
+          };
+        } else if (!this.image) {
+          // 没有图片URL，显示默认图片
+          img.src = Golbal.noImage;
+          this._placeholder = false;
+        }
+      }
+    }
+  }
+
+  _setupLazyLoading() {
+    const img = this.renderRoot.querySelector('img');
+    if (!img) return;
+
+    // 保存真实URL
+    const realSrc = this.image;
+    
+    // 使用 IntersectionObserver 实现懒加载
+    if ('IntersectionObserver' in window) {
+      this._observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // 设置src前添加load监听
+            img.onload = () => {
+              this._placeholder = false;
+            };
+            img.onerror = () => {
+              this.image = Golbal.noImage;
+              this._card_image_error = true;
+            };
+            img.src = realSrc;
+            this._observer.unobserve(img);
+            this._observer = null;
+          }
+        });
+      }, {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0
+      });
+      
+      this._observer.observe(img);
+    } else {
+      // 不支持 IntersectionObserver，直接加载
+      img.src = realSrc;
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    // 清理观察器
+    if (this._observer) {
+      const img = this.renderRoot.querySelector('img');
+      if (img) this._observer.unobserve(img);
+      this._observer = null;
+    }
   }
 
   _render_left_up() {
@@ -120,8 +193,14 @@ export class NormalCard extends observeState(CustomElement) {
         ${this._placeholder ? NormalCardPlaceholder.render_placeholder() : nothing}
         <div ?hidden=${this._placeholder} class="rounded-3">
           <img class="card-img rounded-3" alt="" style="box-shadow:0 0 0 1px #888888; display: block; min-width: 100%; max-width: 100%; min-height: 100%; max-height: 100%; object-fit: cover;"
-             src=${this.lazy == "1" ? "" : this.image ?? Golbal.noImage}
-             @error=${() => { if (this.lazy != "1") {this.image = Golbal.noImage; this._card_image_error = true} }}
+             src=${this.lazy == "1" ? "" : (this.image || Golbal.noImage)}
+             @error=${(e) => {
+               if (this.lazy != "1") {
+                 // 图片加载失败，使用默认图片
+                 e.target.src = Golbal.noImage;
+                 this._card_image_error = true;
+               }
+             }}
              @load=${() => { this._placeholder = false }}/>
           ${this._render_left_up()}
           ${this._render_right_up()}

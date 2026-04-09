@@ -10,6 +10,7 @@ import requests.exceptions
 
 from .as_obj import AsObj
 from .exceptions import TMDbException
+from app.utils.tmdb_rate_limiter import get_rate_limiter, get_retry_handler
 
 logger = logging.getLogger(__name__)
 
@@ -151,10 +152,25 @@ class TMDb(object):
             self.language,
         )
 
-        if self.cache and self.obj_cached and call_cached and method != "POST":
-            req = self.cached_request(method, url, data, self.proxies)
-        else:
-            req = self._session.request(method, url, data=data, proxies=eval(self.proxies), timeout=10, verify=False)
+        def do_request():
+            # 使用速率限制器控制请求频率
+            rate_limiter = get_rate_limiter()
+            if not rate_limiter.acquire(timeout=30):  # 最多等待30秒
+                raise TMDbException("获取速率限制令牌超时")
+            
+            if self.cache and self.obj_cached and call_cached and method != "POST":
+                req = self.cached_request(method, url, data, self.proxies)
+            else:
+                req = self._session.request(method, url, data=data, proxies=eval(self.proxies), timeout=10, verify=False)
+            return req
+
+        # 使用指数退避重试机制
+        retry_handler = get_retry_handler()
+        try:
+            req = retry_handler.execute(do_request)
+        except Exception as e:
+            logger.error(f"【TMDB】请求失败，重试后仍失败: {str(e)}")
+            raise
 
         headers = req.headers
 
@@ -164,18 +180,12 @@ class TMDb(object):
         if "X-RateLimit-Reset" in headers:
             self._reset = int(headers["X-RateLimit-Reset"])
 
-        if self._remaining < 1:
-            current_time = int(time.time())
-            sleep_time = self._reset - current_time
-
-            if self.wait_on_rate_limit:
-                logger.warning("Rate limit reached. Sleeping for: %d" % sleep_time)
-                time.sleep(abs(sleep_time))
-                self._call(action, append_to_response, call_cached, method, data)
-            else:
-                raise TMDbException(
-                    "Rate limit reached. Try again in %d seconds." % sleep_time
-                )
+        # 如果响应码是 429，说明被限流了，触发指数退避
+        if req.status_code == 429:
+            retry_after = int(headers.get("Retry-After", 1))
+            logger.warning(f"【TMDB】收到 429 响应，等待 {retry_after} 秒后重试")
+            time.sleep(retry_after)
+            return self._call(action, append_to_response, call_cached, method, data)
 
         json = req.json()
 

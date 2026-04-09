@@ -1,4 +1,5 @@
 import random
+import urllib.parse
 from threading import Lock
 from time import sleep
 
@@ -270,7 +271,15 @@ class DouBan(metaclass=SingletonMeta):
             # 封面图
             cover_url = web_info.get("cover")
             if cover_url:
-                ret_media['cover_url'] = cover_url.replace("s_ratio_poster", "m_ratio_poster")
+                cover_url = cover_url.replace("s_ratio_poster", "m_ratio_poster")
+                # 转换为代理URL格式
+                try:
+                    from config import Config
+                    if Config().get_image_proxy_enabled():
+                        cover_url = f"/img/douban/{urllib.parse.quote(cover_url, safe='')}"
+                except Exception:
+                    pass
+                ret_media['cover_url'] = cover_url
             # 评分
             rating = web_info.get("rate")
             if rating:
@@ -445,6 +454,13 @@ class DouBan(metaclass=SingletonMeta):
                                       or "tv_normal.png" in poster_path):
                     continue
                 poster_path = poster_path.replace("s_ratio_poster", "m_ratio_poster")
+                # 转换为代理URL格式
+                try:
+                    from config import Config
+                    if Config().get_image_proxy_enabled():
+                        poster_path = f"/img/douban/{urllib.parse.quote(poster_path, safe='')}"
+                except Exception:
+                    pass
             elif poster_filter:
                 continue
 
