@@ -3,7 +3,6 @@ import base64
 import hashlib
 import hmac
 from datetime import datetime
-from functools import lru_cache
 from random import choice
 from urllib import parse
 
@@ -11,6 +10,7 @@ import requests
 
 from app.utils import RequestUtils
 from app.utils.commons import SingletonMeta
+from app.utils.cache_system import lru_cache_with_ttl
 
 
 class DoubanApi(metaclass=SingletonMeta):
@@ -158,7 +158,7 @@ class DoubanApi(metaclass=SingletonMeta):
                                 ).decode()
 
     @classmethod
-    @lru_cache(maxsize=256)
+    @lru_cache_with_ttl(maxsize=256, ttl=3600)
     def __invoke(cls, url, **kwargs):
         req_url = cls._base_url + url
 

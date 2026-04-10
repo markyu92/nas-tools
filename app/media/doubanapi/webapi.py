@@ -1,4 +1,4 @@
-from functools import lru_cache
+from app.utils.cache_system import lru_cache_with_ttl
 
 import requests
 from lxml import etree
@@ -249,7 +249,7 @@ class DoubanWeb(metaclass=SingletonMeta):
         return obj
 
     @classmethod
-    @lru_cache(maxsize=256)
+    @lru_cache_with_ttl(maxsize=256, ttl=3600)
     def detail(cls, cookie, doubanid):
         """
         查询详情
@@ -257,7 +257,7 @@ class DoubanWeb(metaclass=SingletonMeta):
         return cls.__get_obj("detail", cls.__invoke_web("detail", cookie, doubanid))
 
     @classmethod
-    @lru_cache(maxsize=10)
+    @lru_cache_with_ttl(maxsize=10, ttl=3600)
     def user(cls, cookie, userid):
         """
         查询用户信息

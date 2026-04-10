@@ -1,6 +1,8 @@
-from cachetools import cached, TTLCache
-
 from app.utils import RequestUtils
+from app.utils.cache_system import cached, MemoryCacheAdapter
+
+# 创建插件统计缓存
+_plugin_stats_cache = MemoryCacheAdapter(maxsize=1, name="plugin_stats")
 
 
 class PluginHelper:
@@ -20,7 +22,7 @@ class PluginHelper:
         return None
 
     @staticmethod
-    @cached(cache=TTLCache(maxsize=1, ttl=3600))
+    @cached(cache_instance=_plugin_stats_cache, ttl=3600)
     def statistic():
         """
         获取插件安装统计数据

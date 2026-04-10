@@ -1,5 +1,4 @@
-from functools import lru_cache
-
+from app.utils.cache_system import lru_cache_with_ttl
 from app.utils import RequestUtils, ExceptionUtils
 from app.utils.types import MediaType
 from config import Config, FANART_MOVIE_API_URL, FANART_TV_API_URL
@@ -67,7 +66,7 @@ class Fanart:
             ExceptionUtils.exception_traceback(e2)
 
     @classmethod
-    @lru_cache(maxsize=256)
+    @lru_cache_with_ttl(maxsize=256, ttl=3600)
     def __request_fanart(cls, media_type, queryid):
         if media_type == MediaType.MOVIE:
             image_url = FANART_MOVIE_API_URL % queryid
