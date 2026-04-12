@@ -151,7 +151,7 @@ export class LayoutSearchbar extends CustomElement {
                 ? html`
                     <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
                       aria-controls="offcanvasEnd">消息中心</a>
-                    <a class="dropdown-item" href="javascript:show_logging_modal()" role="button">实时日志</a>
+                    <a class="dropdown-item" href="javascript:navmenu('/logging')" role="button">实时日志</a>
                     <div class="dropdown-divider"></div>
                   `
                 : nothing }
