@@ -209,6 +209,20 @@ class PluginManager(metaclass=SingletonMeta):
             return False
         return self.systemconfig.set(self._config_key % pid, conf)
 
+    def install_plugin(self, module_id, reload=True):
+        """
+        安装插件
+        """
+        if not module_id:
+            return False
+        user_plugins = self.systemconfig.get(SystemConfigKey.UserInstalledPlugins) or []
+        if module_id not in user_plugins:
+            user_plugins.append(module_id)
+        self.systemconfig.set(SystemConfigKey.UserInstalledPlugins, user_plugins)
+        if reload:
+            self.init_config()
+        return True
+
     @staticmethod
     def __get_plugin_color(plugin):
         """

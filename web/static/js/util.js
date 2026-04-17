@@ -32,16 +32,13 @@ function ajax_post(cmd, params, handler, aync = true, show_progress = true) {
   if (show_progress) {
     NProgress.start();
   }
-  let data = {
-    cmd: cmd,
-    data: params
-  };
+  const url = cmd;
   $.ajax({
     type: "POST",
-    url: "do?random=" + Math.random(),
-    contentType: 'application/json',
+    url: url + "?random=" + Math.random(),
+    contentType: 'application/json; charset=utf-8',
     dataType: "json",
-    data: JSON.stringify(data),
+    data: JSON.stringify({data: params}),
     cache: false,
     async: aync,
     timeout: 0,
