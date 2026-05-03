@@ -1,10 +1,11 @@
 import os
+from typing import Optional, Union
 
 
 class PathUtils:
 
     @staticmethod
-    def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
+    def get_dir_files(in_path, exts: Union[str, list] = "", filesize=0, episode_format=None):
         """
         获得目录下的媒体文件列表List ，按后缀、大小、格式过滤
         """
@@ -64,7 +65,7 @@ class PathUtils:
         return ret_list
 
     @staticmethod
-    def get_dir_level1_medias(in_path, exts=""):
+    def get_dir_level1_medias(in_path, exts: Union[str, list] = ""):
         """
         根据后缀，返回目录下所有的文件及文件夹列表（只查询一级）
         """
