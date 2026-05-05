@@ -3,6 +3,7 @@ import re
 import log
 from app.utils import RequestUtils, StringUtils
 from config import Config
+from app.utils.config_tools import get_proxies
 
 
 class TNodeSpider(object):
@@ -25,7 +26,7 @@ class TNodeSpider(object):
             self._searchurl = self._searchurl % self._domain
             self._name = indexer.name
             if indexer.proxy:
-                self._proxy = Config().get_proxies()
+                self._proxy = get_proxies()
             self._cookie = indexer.cookie
             self._ua = indexer.ua
         self.init_config()

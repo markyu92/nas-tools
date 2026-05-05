@@ -8,6 +8,8 @@ from app.helper import ThreadHelper
 from app.message.client._base import _IMessageClient
 from app.utils import RequestUtils, ExceptionUtils
 from config import Config
+from app.utils.config_tools import get_domain
+from app.utils.config_tools import get_proxies
 
 lock = Lock()
 WEBHOOK_STATUS = False
@@ -32,7 +34,7 @@ class Telegram(_IMessageClient):
     def __init__(self, config):
         self._client_config = config
         self._interactive = config.get("interactive")
-        self._domain = Config().get_domain()
+        self._domain = get_domain()
         self._api_key = Config().get_config("security").get("api_key")
         self.init_config()
 
@@ -178,7 +180,7 @@ class Telegram(_IMessageClient):
             else:
                 return False, "未获取到返回信息"
 
-        proxies = Config().get_proxies()
+        proxies = get_proxies()
         if image:
             # 发送图文消息
             values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "Markdown"}
@@ -227,7 +229,7 @@ class Telegram(_IMessageClient):
                 self.__del_bot_webhook()
             values = {"url": self._webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self._telegram_token
-            res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url + urlencode(values))
+            res = RequestUtils(proxies=get_proxies()).get_res(sc_url + urlencode(values))
             if res is not None:
                 json = res.json()
                 if json.get("ok"):
@@ -243,7 +245,7 @@ class Telegram(_IMessageClient):
         :return: 状态：1-存在且相等，2-存在不相等，3-不存在，0-网络出错
         """
         sc_url = "https://api.telegram.org/bot%s/getWebhookInfo" % self._telegram_token
-        res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url)
+        res = RequestUtils(proxies=get_proxies()).get_res(sc_url)
         if res is not None and res.json():
             if res.json().get("ok"):
                 result = res.json().get("result") or {}
@@ -270,7 +272,7 @@ class Telegram(_IMessageClient):
         :return: 是否成功
         """
         sc_url = "https://api.telegram.org/bot%s/deleteWebhook" % self._telegram_token
-        res = RequestUtils(proxies=Config().get_proxies()).get_res(sc_url)
+        res = RequestUtils(proxies=get_proxies()).get_res(sc_url)
         if res and res.json() and res.json().get("ok"):
             return True
         else:

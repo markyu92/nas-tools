@@ -6,7 +6,7 @@ from app.helper import WordsHelper
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
 from app.utils.types import MediaType
-from config import RMT_MEDIAEXT
+from app.core.constants import RMT_MEDIAEXT
 
 
 def MetaInfo(title, subtitle=None, mtype=None):

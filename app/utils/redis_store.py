@@ -2,7 +2,7 @@ import redis
 import json
 from typing import Any, Optional, List
 
-from config import REDIS_HOST, REDIS_PORT
+from app.core.constants import REDIS_HOST, REDIS_PORT
 
 
 class RedisStore:

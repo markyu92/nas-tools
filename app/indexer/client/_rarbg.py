@@ -4,6 +4,7 @@ import re
 import log
 from app.utils import RequestUtils
 from config import Config
+from app.utils.config_tools import get_proxies
 
 
 class Rarbg:
@@ -21,7 +22,7 @@ class Rarbg:
 
     def init_config(self):
         session = requests.session()
-        self._req = RequestUtils(proxies=Config().get_proxies(), session=session, timeout=10)
+        self._req = RequestUtils(proxies=get_proxies(), session=session, timeout=10)
         self.__get_token()
 
     def __get_token(self):

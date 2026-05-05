@@ -16,6 +16,7 @@ from app.helper.cloudflare_helper import under_challenge
 from app.utils import RequestUtils
 from app.utils.types import SiteSchema
 from config import Config
+from app.utils.config_tools import get_proxies
 
 SITE_BASE_ORDER = 1000
 
@@ -216,7 +217,7 @@ class _ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         req_headers = None
-        proxies = Config().get_proxies() if self._proxy else None
+        proxies = get_proxies() if self._proxy else None
         if self._ua or headers or self._addition_headers:
             req_headers = {}
             if headers:

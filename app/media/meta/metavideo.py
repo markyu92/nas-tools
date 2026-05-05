@@ -1,7 +1,7 @@
 import os
 import re
 
-from config import RMT_MEDIAEXT
+from app.core.constants import RMT_MEDIAEXT
 from app.media.meta._base import MetaBase
 from app.utils import StringUtils
 from app.utils.tokens import Tokens

@@ -6,6 +6,7 @@ import ruamel.yaml
 import log
 from app.utils import ExceptionUtils
 from config import Config
+from app.utils.path_utils import get_inner_config_path, get_category_path
 from app.utils.commons import SingletonMeta
 
 
@@ -20,7 +21,7 @@ class Category(metaclass=SingletonMeta):
         self.init_config()
 
     def init_config(self):
-        self._category_path = Config().category_path
+        self._category_path = get_category_path()
         if not self._category_path:
             return
         category_name, _ = os.path.splitext(os.path.basename(self._category_path))
@@ -29,7 +30,7 @@ class Category(metaclass=SingletonMeta):
             return
         try:
             if not os.path.exists(self._category_path):
-                shutil.copy(os.path.join(Config().get_inner_config_path(), "default-category.yaml"),
+                shutil.copy(os.path.join(get_inner_config_path(), "default-category.yaml"),
                             self._category_path)
                 log.warn(f"【Config】二级分类策略 {category_name} 配置文件不存在，已按模板生成...")
             with open(self._category_path, mode='r', encoding='utf-8') as f:

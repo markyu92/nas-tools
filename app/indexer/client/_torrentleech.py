@@ -3,6 +3,7 @@ from urllib.parse import quote
 import log
 from app.utils import RequestUtils, StringUtils
 from config import Config
+from app.utils.config_tools import get_proxies
 
 
 class TorrentLeech(object):
@@ -17,7 +18,7 @@ class TorrentLeech(object):
     def __init__(self, indexer):
         self._indexer = indexer
         if indexer.proxy:
-            self._proxy = Config().get_proxies()
+            self._proxy = get_proxies()
         self.init_config()
 
     def init_config(self):

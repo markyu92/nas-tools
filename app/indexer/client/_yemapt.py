@@ -1,3 +1,4 @@
+import os
 import datetime
 import pytz
 import json
@@ -6,6 +7,7 @@ from app.utils.types import MediaType
 import log
 from app.utils import RequestUtils, JsonUtils
 from config import Config
+from app.utils.config_tools import get_proxies
 
 
 class YemaPTSpider(object):
@@ -33,7 +35,7 @@ class YemaPTSpider(object):
             self._domain = indexer.domain
             self._name = indexer.name
             if indexer.proxy:
-                self._proxy = Config().get_proxies()
+                self._proxy = get_proxies()
             self._ua = indexer.ua
             self._cookie = indexer.cookie
             if JsonUtils.is_valid_json(indexer.headers):
@@ -97,7 +99,7 @@ class YemaPTSpider(object):
                     org_date = result.get('listingTime')
                     dt_utc = datetime.datetime.fromisoformat(org_date.replace('Z', '+00:00'))
 
-                    local_tz = pytz.timezone(Config().get_timezone())
+                    local_tz = pytz.timezone(os.environ.get('TZ'))
                     pubdate = dt_utc.astimezone(local_tz).strftime('%Y-%m-%d %H:%M:%S')
                     label_ids = result.get("tagList") or []
                     labels = '|'.join([self._LABEL_MAP.get(label_id) or '' for label_id in label_ids])

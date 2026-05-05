@@ -11,6 +11,7 @@ from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import RequestUtils, JsonUtils
 from app.utils.types import SiteSchema
 from config import Config
+from app.utils.config_tools import get_proxies
 
 
 class FSMUserInfo(_ISiteUserInfo):
@@ -142,7 +143,7 @@ class FSMUserInfo(_ISiteUserInfo):
         :return:
         """
         req_headers = None
-        proxies = Config().get_proxies() if self._proxy else None
+        proxies = get_proxies() if self._proxy else None
         if self._ua or headers or self._addition_headers:
             req_headers = {}
             if headers:

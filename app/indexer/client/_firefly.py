@@ -8,6 +8,7 @@ import log
 from app.utils import RequestUtils, JsonUtils
 from config import Config
 from lxml import etree
+from app.utils.config_tools import get_proxies
 
 
 class FireFlySpider(object):
@@ -27,7 +28,7 @@ class FireFlySpider(object):
             self._visit_domain = indexer.domain
             self._name = indexer.name
             if indexer.proxy:
-                self._proxy = Config().get_proxies()
+                self._proxy = get_proxies()
             self._cookie = indexer.cookie
             self._ua = indexer.ua
             if JsonUtils.is_valid_json(indexer.headers):

@@ -1,6 +1,6 @@
 import re
 
-from config import SPLIT_CHARS
+from app.core.constants import SPLIT_CHARS
 
 
 class Tokens:
