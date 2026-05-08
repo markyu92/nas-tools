@@ -1,8 +1,11 @@
+from typing import Optional
 import time
 
 
 class SiteRateLimiter:
-    def __init__(self, limit_interval: int, limit_count: int, limit_seconds: int):
+    def __init__(self, limit_interval: Optional[int] = None,
+                 limit_count: Optional[int] = None,
+                 limit_seconds: Optional[int] = None):
         """
         限制访问频率
         :param limit_interval: 单位时间（秒）

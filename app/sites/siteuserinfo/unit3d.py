@@ -1,130 +1,143 @@
-# -*- coding: utf-8 -*-
+"""Unit3d 架构用户信息解析"""
 import re
-
+from urllib.parse import urljoin
 from lxml import etree
-
-from app.sites.siteuserinfo._base import _ISiteUserInfo, SITE_BASE_ORDER
 from app.utils import StringUtils
-from app.utils.types import SiteSchema
 
 
-class Unit3dSiteUserInfo(_ISiteUserInfo):
-    schema = SiteSchema.Unit3d
-    order = SITE_BASE_ORDER + 15
+def is_unit3d(ins):
+    return "unit3d.js" in ins._index_html
 
-    @classmethod
-    def match(cls, html_text):
-        return "unit3d.js" in html_text
 
-    def _parse_user_base_info(self, html_text):
-        html_text = self._prepare_html_text(html_text)
-        html = etree.HTML(html_text)
+def parse(ins):
+    html_text = re.sub(r"#\d+", "", re.sub(r"\d+px", "", ins._index_html))
+    html = etree.HTML(html_text)
+    if html is None:
+        return
 
-        tmps = html.xpath('//a[contains(@href, "/users/") and contains(@href, "settings")]/@href')
-        if tmps:
-            user_name_match = re.search(r"/users/(.+)/settings", tmps[0])
-            if user_name_match and user_name_match.group().strip():
-                self.username = user_name_match.group(1)
-                self._torrent_seeding_page = f"/users/{self.username}/active?perPage=100&client=&seeding=include"
-                self._user_detail_page = f"/users/{self.username}"
+    tmps = html.xpath('//a[contains(@href,"/users/") and contains(@href,"settings")]/@href')
+    if tmps:
+        m = re.search(r"/users/(.+)/settings", tmps[0])
+        if m and m.group(1).strip():
+            ins.username = m.group(1)
 
-        tmps = html.xpath('//a[contains(@href, "bonus/earnings")]')
-        if tmps:
-            bonus_text = tmps[0].xpath("string(.)")
-            bonus_match = re.search(r"([\d,.]+)", bonus_text)
-            if bonus_match and bonus_match.group(1).strip():
-                self.bonus = StringUtils.str_float(bonus_match.group(1))
+    level = html.xpath('//div[contains(@class,"content")]//span[contains(@class,"badge-user")]/text()')
+    if level:
+        ins.user_level = level[0].strip()
 
-    def _parse_site_page(self, html_text):
-        # TODO
-        pass
+    bonus_el = html.xpath('//a[contains(@href,"bonus/earnings")]')
+    if bonus_el:
+        bt = bonus_el[0].xpath("string(.)")
+        bm = re.search(r"([\d,.]+)", bt)
+        if bm and bm.group(1).strip():
+            ins.bonus = StringUtils.str_float(bm.group(1))
 
-    def _parse_user_detail_info(self, html_text):
-        """
-        解析用户额外信息，加入时间，等级
-        :param html_text:
-        :return:
-        """
-        html = etree.HTML(html_text)
-        if not html:
-            return None
+    join = html.xpath('//div[contains(@class,"content")]//h4[contains(text(),"注册日期") '
+                      'or contains(text(),"Registration date")]/text()')
+    if join:
+        ins.join_at = StringUtils.unify_datetime_str(
+            join[0].replace('注册日期','').replace('Registration date',''))
 
-        # 用户等级
-        user_levels_text = html.xpath('//div[contains(@class, "content")]//span[contains(@class, "badge-user")]/text()')
-        if user_levels_text:
-            self.user_level = user_levels_text[0].strip()
+    username = getattr(ins, 'username', None) or ''
+    if not username:
+        return
+    profile_url = urljoin(ins._base_url_str + "/", f"users/{username}")
+    profile_text = ins._fetch_html(profile_url)
+    if not profile_text:
+        return
+    profile_doc = etree.HTML(profile_text)
+    if profile_doc is None:
+        return
 
-        # 加入日期
-        join_at_text = html.xpath('//div[contains(@class, "content")]//h4[contains(text(), "注册日期") '
-                                  'or contains(text(), "註冊日期") '
-                                  'or contains(text(), "Registration date")]/text()')
-        if join_at_text:
-            self.join_at = StringUtils.unify_datetime_str(
-                join_at_text[0].replace('注册日期', '').replace('註冊日期', '').replace('Registration date', ''))
+    _extract_traffic(ins, profile_doc)
+    _extract_seeding(ins, profile_doc)
 
-    def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
-        """
-        做种相关信息
-        :param html_text:
-        :param multi_page: 是否多页数据
-        :return: 下页地址
-        """
-        html = etree.HTML(html_text)
-        if not html:
-            return None
 
-        size_col = 9
-        seeders_col = 2
-        # 搜索size列
-        if html.xpath('//thead//th[contains(@class,"size")]'):
-            size_col = len(html.xpath('//thead//th[contains(@class,"size")][1]/preceding-sibling::th')) + 1
-        # 搜索seeders列
-        if html.xpath('//thead//th[contains(@class,"seeders")]'):
-            seeders_col = len(html.xpath('//thead//th[contains(@class,"seeders")]/preceding-sibling::th')) + 1
+def _extract_traffic(ins, doc):
+    for label, attr, is_size in [("Upload", "upload", True), ("Download", "download", True)]:
+        vals = doc.xpath(f'//h4[contains(text(),"{label}")]/following-sibling::span[1]/text()'
+                         f'|//h4[contains(text(),"{label}")]/..//span//text()')
+        if vals:
+            val = "".join(vals).strip()
+            setattr(ins, attr, StringUtils.num_filesize(val) if is_size else StringUtils.str_float(val))
 
-        page_seeding = 0
-        page_seeding_size = 0
-        page_seeding_info = []
-        seeding_sizes = html.xpath(f'//tr[position()]/td[{size_col}]')
-        seeding_seeders = html.xpath(f'//tr[position()]/td[{seeders_col}]')
-        if seeding_sizes and seeding_seeders:
-            page_seeding = len(seeding_sizes)
+    if not ins.upload:
+        for pat in [
+            '//span[contains(@class,"text-green") or contains(@class,"text-success")]//text()',
+            '//td[contains(text(),"Upload") or contains(text(),"上传")]/following-sibling::td[1]//text()',
+        ]:
+            vals = doc.xpath(pat)
+            for v in vals:
+                val = "".join(v).strip() if isinstance(v, list) else str(v).strip()
+                if re.search(r"[\d,.]+ *[KMGTP]i?B", val, re.I):
+                    ins.upload = StringUtils.num_filesize(val)
+                    break
+            if ins.upload:
+                break
 
-            for i in range(0, len(seeding_sizes)):
-                size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
-                seeders = StringUtils.str_int(seeding_seeders[i].xpath("string(.)").strip())
+    if not ins.download:
+        for pat in [
+            '//span[contains(@class,"text-red") or contains(@class,"text-danger")]//text()',
+            '//td[contains(text(),"Download") or contains(text(),"下载")]/following-sibling::td[1]//text()',
+        ]:
+            vals = doc.xpath(pat)
+            for v in vals:
+                val = "".join(v).strip() if isinstance(v, list) else str(v).strip()
+                if re.search(r"[\d,.]+ *[KMGTP]i?B", val, re.I):
+                    ins.download = StringUtils.num_filesize(val)
+                    break
+            if ins.download:
+                break
 
-                page_seeding_size += size
-                page_seeding_info.append([seeders, size])
+    ins.ratio = 0.0 if ins.download <= 0.0 else round(ins.upload / ins.download, 3)
 
-        self.seeding += page_seeding
-        self.seeding_size += page_seeding_size
-        self.seeding_info.extend(page_seeding_info)
+    if not ins.join_at:
+        join = doc.xpath('//h4[contains(text(),"注册日期") or contains(text(),"Registration date")]'
+                         '/following-sibling::span[1]/text()'
+                         '|//h4[contains(text(),"注册日期") or contains(text(),"Registration date")]/text()')
+        if join:
+            ins.join_at = StringUtils.unify_datetime_str(
+                join[0].replace('注册日期', '').replace('Registration date', '').strip())
 
-        # 是否存在下页数据
-        next_page = None
-        next_pages = html.xpath('//ul[@class="pagination"]/li[contains(@class,"active")]/following-sibling::li')
-        if next_pages and len(next_pages) > 1:
-            page_num = next_pages[0].xpath("string(.)").strip()
-            if page_num.isdigit():
-                next_page = f"{self._torrent_seeding_page}&page={page_num}"
+    if not ins.bonus:
+        for pat in [
+            '//a[contains(@href,"bonus")]/text()',
+            '//a[contains(@href,"bonus")]/@data-tooltip',
+            '//span[contains(text(),"BON") or contains(text(),"Bonus")]//text()',
+        ]:
+            for val in doc.xpath(pat):
+                bm = re.search(r"([\d,.]+)", str(val))
+                if bm and bm.group(1).strip():
+                    v = StringUtils.str_float(bm.group(1))
+                    if v > 0:
+                        ins.bonus = v
+                        break
+            if ins.bonus:
+                break
 
-        return next_page
 
-    def _parse_user_traffic_info(self, html_text):
-        html_text = self._prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
-                                 re.IGNORECASE)
-        self.upload = StringUtils.num_filesize(upload_match.group(1).strip()) if upload_match else 0
-        download_match = re.search(r"[^总子影力]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
-                                   re.IGNORECASE)
-        self.download = StringUtils.num_filesize(download_match.group(1).strip()) if download_match else 0
-        ratio_match = re.search(r"分享率[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
-        self.ratio = StringUtils.str_float(ratio_match.group(1)) if (
-                ratio_match and ratio_match.group(1).strip()) else 0.0
+def _extract_seeding(ins, doc):
+    for label, attr in [("Seeding", "seeding"), ("Leeching", "leeching")]:
+        vals = doc.xpath(f'//h4[contains(text(),"{label}")]/following-sibling::span[1]/text()'
+                         f'|//h4[contains(text(),"{label}")]/..//span//text()')
+        if vals:
+            val = "".join(vals).strip()
+            m = re.search(r"(\d+)", val)
+            if m:
+                setattr(ins, attr, StringUtils.str_int(m.group(1)))
 
-    def _parse_message_unread_links(self, html_text, msg_links):
-        return None
+    if not ins.seeding:
+        vals = doc.xpath('//i[contains(@class,"fa-arrow-up") or contains(@class,"fa-upload")]/..//text()')
+        for v in vals:
+            m = re.search(r"(\d+)", str(v).strip())
+            if m:
+                ins.seeding = StringUtils.str_int(m.group(1))
+                break
 
-    def _parse_message_content(self, html_text):
-        return None, None, None
+    if not ins.leeching:
+        vals = doc.xpath('//i[contains(@class,"fa-arrow-down") or contains(@class,"fa-download")]/..//text()')
+        for v in vals:
+            m = re.search(r"(\d+)", str(v).strip())
+            if m:
+                ins.leeching = StringUtils.str_int(m.group(1))
+                break
