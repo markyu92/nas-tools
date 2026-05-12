@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from app.media.meta import MetaInfo
+from app.media.parser._metainfo import MetaInfo
 from tests.cases.meta_cases import meta_cases
 
 
