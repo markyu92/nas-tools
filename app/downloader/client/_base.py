@@ -18,28 +18,24 @@ class _IDownloadClient(metaclass=ABCMeta):
         """
         匹配实例
         """
-        pass
 
     @abstractmethod
     def get_type(self):
         """
         获取下载器类型
         """
-        pass
 
     @abstractmethod
     def connect(self):
         """
         连接
         """
-        pass
 
     @abstractmethod
     def get_status(self):
         """
         检查连通性
         """
-        pass
 
     @abstractmethod
     def get_torrents(self, ids, status, tag):
@@ -50,28 +46,24 @@ class _IDownloadClient(metaclass=ABCMeta):
         :param tag: 种子标签过滤
         :return: 种子信息列表，是否发生错误
         """
-        pass
 
     @abstractmethod
     def get_downloading_torrents(self, ids, tag):
         """
         读取下载中的种子信息，发生错误时需返回None
         """
-        pass
 
     @abstractmethod
     def get_completed_torrents(self, ids, tag):
         """
         读取下载完成的种子信息，发生错误时需返回None
         """
-        pass
 
     @abstractmethod
     def get_files(self, tid):
         """
         读取种子文件列表
         """
-        pass
 
     @abstractmethod
     def set_torrents_status(self, ids, tags=None):
@@ -80,7 +72,6 @@ class _IDownloadClient(metaclass=ABCMeta):
         :param ids: 种子ID列表
         :param tags: 种子标签列表
         """
-        pass
 
     @abstractmethod
     def set_torrents_tag(self, ids, tags):
@@ -89,14 +80,12 @@ class _IDownloadClient(metaclass=ABCMeta):
         :param ids: 种子ID列表
         :param tags: 种子标签列表
         """
-        pass
 
     @abstractmethod
     def get_transfer_task(self, tag, match_path=None):
         """
         获取需要转移的种子列表
         """
-        pass
 
     @abstractmethod
     def get_remove_torrents(self, config):
@@ -105,42 +94,36 @@ class _IDownloadClient(metaclass=ABCMeta):
         :param config: 删种策略
         :return: 种子ID列表
         """
-        pass
 
     @abstractmethod
     def add_torrent(self, **kwargs):
         """
         添加下载任务
         """
-        pass
 
     @abstractmethod
     def start_torrents(self, ids):
         """
         下载控制：开始
         """
-        pass
 
     @abstractmethod
     def stop_torrents(self, ids):
         """
         下载控制：停止
         """
-        pass
 
     @abstractmethod
     def delete_torrents(self, delete_file, ids):
         """
         删除种子
         """
-        pass
 
     @abstractmethod
     def get_download_dirs(self):
         """
         获取下载目录清单
         """
-        pass
 
     @staticmethod
     def get_replace_path(path, downloaddir) -> (str, bool):
@@ -173,32 +156,27 @@ class _IDownloadClient(metaclass=ABCMeta):
         """
         修改种子状态
         """
-        pass
 
     @abstractmethod
     def get_downloading_progress(self):
         """
         获取下载进度
         """
-        pass
 
     @abstractmethod
     def set_speed_limit(self, **kwargs):
         """
         设置速度限制
         """
-        pass
 
     @abstractmethod
     def recheck_torrents(self, ids):
         """
         下载控制：重新校验
         """
-        pass
-    
+
     @abstractmethod
     def get_free_space(self, path: str):
         """
         获取剩余空间
         """
-        pass

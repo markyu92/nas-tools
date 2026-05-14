@@ -5,9 +5,8 @@ Revises: 702b7666a634
 Create Date: 2023-04-16 14:03:56.871650
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'd68a85a8f10d'
@@ -21,7 +20,7 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("CONFIG_SYNC_PATHS") as batch_op:
             batch_op.add_column(sa.Column('COMPATIBILITY', sa.Integer, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 

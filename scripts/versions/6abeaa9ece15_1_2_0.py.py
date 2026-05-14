@@ -3,9 +3,8 @@ Revision ID: 6abeaa9ece15
 Revises: None
 Create Date: 2023-03-15 10:07:19.965255
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '6abeaa9ece15'
@@ -23,14 +22,14 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("CUSTOM_WORDS") as batch_op:
             batch_op.alter_column('OFFSET', type_=sa.Text, existing_type=sa.Integer)
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.1
     try:
         with op.batch_alter_table("CONFIG_USER_RSS") as batch_op:
             batch_op.add_column(sa.Column('SAVE_PATH', sa.Text))
             batch_op.add_column(sa.Column('DOWNLOAD_SETTING', sa.Integer))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.2
     try:
@@ -46,7 +45,7 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('DOWNLOAD_SETTING', sa.Integer))
             batch_op.add_column(sa.Column('FUZZY_MATCH', sa.Integer))
             batch_op.add_column(sa.Column('NOTE', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("RSS_TVS") as batch_op:
@@ -63,7 +62,7 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('TOTAL_EP', sa.Integer))
             batch_op.add_column(sa.Column('CURRENT_EP', sa.Integer))
             batch_op.add_column(sa.Column('NOTE', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.3
     try:
@@ -74,63 +73,63 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('TMDBID', sa.Integer))
             batch_op.add_column(sa.Column('DEST_PATH', sa.Text))
             batch_op.add_column(sa.Column('DEST_FILENAME', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("DOWNLOAD_SETTING") as batch_op:
             batch_op.add_column(sa.Column('DOWNLOADER', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.7
     try:
         with op.batch_alter_table("TRANSFER_UNKNOWN") as batch_op:
             batch_op.add_column(sa.Column('MODE', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.8
     try:
         with op.batch_alter_table("CONFIG_USER_RSS") as batch_op:
             batch_op.add_column(sa.Column('RECOGNIZATION', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('MEDIAINFOS', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.9
     try:
         with op.batch_alter_table("SITE_USER_INFO_STATS") as batch_op:
             batch_op.drop_column('FAVICON')
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("DOUBAN_MEDIAS") as batch_op:
             batch_op.add_column(sa.Column('ADD_TIME', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
             batch_op.add_column(sa.Column('SENDMESSAGE', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.10
     try:
         with op.batch_alter_table("RSS_MOVIES") as batch_op:
             batch_op.add_column(sa.Column('FILTER_ORDER', sa.Integer, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("RSS_TVS") as batch_op:
             batch_op.add_column(sa.Column('FILTER_ORDER', sa.Integer, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.11
     try:
         with op.batch_alter_table("RSS_MOVIES") as batch_op:
             batch_op.add_column(sa.Column('KEYWORD', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("RSS_TVS") as batch_op:
             batch_op.add_column(sa.Column('KEYWORD', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.0.12
     try:
@@ -138,19 +137,19 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('OVER_EDITION', sa.Integer, nullable=True))
             batch_op.add_column(sa.Column('SITES', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('FILTER_ARGS', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # 1.1.1
     try:
         with op.batch_alter_table("DOWNLOAD_HISTORY") as batch_op:
             batch_op.add_column(sa.Column('DOWNLOADER', sa.Text))
             batch_op.add_column(sa.Column('DOWNLOAD_ID', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
             batch_op.add_column(sa.Column('LABEL', sa.Text))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
@@ -158,13 +157,13 @@ def upgrade() -> None:
             batch_op.alter_column('REMOVE_COUNT', type_=sa.Integer, existing_type=sa.Text)
             batch_op.alter_column('DOWNLOAD_SIZE', type_=sa.Integer, existing_type=sa.Text)
             batch_op.alter_column('UPLOAD_SIZE', type_=sa.Integer, existing_type=sa.Text)
-    except Exception as e:
+    except Exception:
         pass
     # 1.1.2
     try:
         with op.batch_alter_table("DOWNLOADER") as batch_op:
             batch_op.add_column(sa.Column('MATCH_PATH', sa.Integer))
-    except Exception as e:
+    except Exception:
         pass
 
 

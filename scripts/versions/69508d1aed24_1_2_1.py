@@ -5,9 +5,8 @@ Revises: 6abeaa9ece15
 Create Date: 2023-03-24 11:12:51.646014
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '69508d1aed24'
@@ -22,7 +21,7 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
             batch_op.add_column(sa.Column('RSSURL', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 

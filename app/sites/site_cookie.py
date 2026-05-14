@@ -1,9 +1,9 @@
 import base64
 
-from app.helper import ProgressHelper, OcrHelper
+from app.helper import OcrHelper, ProgressHelper
 from app.sites.siteconf import SiteConf
 from app.sites.sites import Sites
-from app.utils import StringUtils, RequestUtils
+from app.utils import RequestUtils, StringUtils
 from app.utils.commons import SingletonMeta
 
 

@@ -5,8 +5,8 @@ Revises: 1f5cc26cdd3d
 Create Date: 2023-04-11 10:24:45.522668
 
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'ae61cfa6ada6'
@@ -22,7 +22,7 @@ def upgrade() -> None:
             batch_op.add_column(sa.Column('SE', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('SAVE_PATH', sa.Text, nullable=True))
             batch_op.create_index('ix_DOWNLOAD_HISTORY_SAVE_PATH', ['SAVE_PATH'])
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 

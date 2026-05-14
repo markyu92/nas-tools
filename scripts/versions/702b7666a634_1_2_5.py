@@ -6,8 +6,6 @@ Create Date: 2023-04-14 13:08:44.689878
 
 """
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = '702b7666a634'
@@ -21,7 +19,7 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("DOWNLOAD_SETTING") as batch_op:
             batch_op.drop_column('CONTENT_LAYOUT')
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 

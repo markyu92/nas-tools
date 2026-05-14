@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import xmlrpc.client
 
@@ -7,7 +6,7 @@ DEFAULT_PORT = 6800
 SERVER_URI_FORMAT = '%s:%s/rpc'
 
 
-class PyAria2(object):
+class PyAria2:
     _secret = None
 
     def __init__(self, secret=None, host=DEFAULT_HOST, port=DEFAULT_PORT):

@@ -5,9 +5,8 @@ Revises: 69508d1aed24
 Create Date: 2023-04-04 08:49:43.453901
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '13a58bd5311f'
@@ -23,13 +22,13 @@ def upgrade() -> None:
         with op.batch_alter_table("RSS_TVS") as batch_op:
             batch_op.add_column(sa.Column('FILTER_INCLUDE', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('FILTER_EXCLUDE', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     try:
         with op.batch_alter_table("RSS_MOVIES") as batch_op:
             batch_op.add_column(sa.Column('FILTER_INCLUDE', sa.Text, nullable=True))
             batch_op.add_column(sa.Column('FILTER_EXCLUDE', sa.Text, nullable=True))
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 

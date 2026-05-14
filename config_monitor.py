@@ -1,12 +1,12 @@
 import os
-from signal import SIGINT, SIGTERM, signal
-import time
 import subprocess
-from loguru import logger
+import time
+from signal import SIGINT, SIGTERM, signal
+
 from cacheout import Cache
+from loguru import logger
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-
 
 _observer = Observer(timeout=10)
 

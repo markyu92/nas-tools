@@ -5,9 +5,8 @@ Revises: a19a48dbb41b
 Create Date: 2024-04-18 13:42:56.601190
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'b5817f5725fc'
@@ -21,7 +20,7 @@ def upgrade() -> None:
     try:
         with op.batch_alter_table("SITE_BRUSH_TASK") as batch_op:
             batch_op.add_column(sa.Column('STOP_RULE', sa.TEXT, nullable=True, default=""))
-    except Exception as e:
+    except Exception:
         pass
     # ### end Alembic commands ###
 
