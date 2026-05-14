@@ -1,5 +1,4 @@
 class NumberUtils:
-
     @staticmethod
     def max_ele(a, b):
         """
@@ -35,15 +34,15 @@ class NumberUtils:
             if isinstance(byte_num, str):
                 byte_num = int(byte_num)
             if byte_num > TB:
-                result = '%s TB' % round(byte_num / TB, 2)
+                result = "%s TB" % round(byte_num / TB, 2)
             elif byte_num > GB:
-                result = '%s GB' % round(byte_num / GB, 2)
+                result = "%s GB" % round(byte_num / GB, 2)
             elif byte_num > MB:
-                result = '%s MB' % round(byte_num / MB, 2)
+                result = "%s MB" % round(byte_num / MB, 2)
             elif byte_num > KB:
-                result = '%s KB' % round(byte_num / KB, 2)
+                result = "%s KB" % round(byte_num / KB, 2)
             else:
-                result = '%s B' % byte_num
+                result = "%s B" % byte_num
             return result
         except Exception as e:
             print(e.args)

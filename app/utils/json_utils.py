@@ -3,7 +3,6 @@ from enum import Enum
 
 
 class JsonUtils:
-
     @staticmethod
     def json_serializable(obj):
         """
@@ -42,9 +41,9 @@ class JsonUtils:
         递归地获取嵌套结构中指定字段的值
         """
         if isinstance(data, dict):
-            key, *remaining_keys = keys.split('.', 1)
-            if '[' in key and ']' in key:
-                key, index = key.split('[')
+            key, *remaining_keys = keys.split(".", 1)
+            if "[" in key and "]" in key:
+                key, index = key.split("[")
                 index = int(index[:-1])
                 value = data.get(key, [])
                 if isinstance(value, list):
@@ -57,7 +56,7 @@ class JsonUtils:
                 return JsonUtils.get_nested_value(value, remaining_keys[0])
             return value
         elif isinstance(data, list):
-            index, *remaining_keys = keys.split('.', 1)
+            index, *remaining_keys = keys.split(".", 1)
             index = int(index)
             value = data[index] if len(data) > index else None
             if remaining_keys:

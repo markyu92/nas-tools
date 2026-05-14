@@ -41,7 +41,7 @@ class Balloon(wx.adv.TaskBarIcon):
     @staticmethod
     def OnClose(event):
         exe_name = os.path.basename(sys.executable)
-        os.system('taskkill /F /IM ' + exe_name)
+        os.system("taskkill /F /IM " + exe_name)
 
 
 class TrayIcon(wx.Frame):
@@ -56,7 +56,7 @@ class TrayIcon(wx.Frame):
 
 class NullWriter:
     softspace = 0
-    encoding = 'UTF-8'
+    encoding = "UTF-8"
 
     def write(*args):
         pass

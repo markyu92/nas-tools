@@ -5,8 +5,7 @@ from config import Config
 
 
 class OcrHelper:
-
-    ocr_server_host = Config().get_config("laboratory").get('ocr_server_host')
+    ocr_server_host = Config().get_config("laboratory").get("ocr_server_host")
     if ocr_server_host:
         if ocr_server_host.endswith("/"):
             ocr_server_host = ocr_server_host[:-1]
@@ -27,8 +26,7 @@ class OcrHelper:
             return ""
 
         if image_url:
-            ret = RequestUtils(headers=ua,
-                               cookies=cookie).get_res(image_url)
+            ret = RequestUtils(headers=ua, cookies=cookie).get_res(image_url)
             if ret is not None:
                 image_bin = ret.content
                 if not image_bin:
@@ -37,8 +35,8 @@ class OcrHelper:
         if not image_b64:
             return ""
         ret = RequestUtils(content_type="application/json").post_res(
-            url=self._ocr_b64_url,
-            json={"image_b64": image_b64})
+            url=self._ocr_b64_url, json={"image_b64": image_b64}
+        )
         if ret:
             return ret.json().get("res")
         return ""

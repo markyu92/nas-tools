@@ -26,9 +26,13 @@ class MessageCenter(metaclass=SingletonMeta):
         """
         将消息增加到队列
         """
-        self._message_queue.appendleft({"title": title,
-                                        "content": content,
-                                        "time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))})
+        self._message_queue.appendleft(
+            {
+                "title": title,
+                "content": content,
+                "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())),
+            }
+        )
 
     def get_system_messages(self, num=20, lst_time=None):
         """
@@ -41,8 +45,10 @@ class MessageCenter(metaclass=SingletonMeta):
         else:
             ret_messages = []
             for message in list(self._message_queue):
-                if (datetime.datetime.strptime(message.get("time"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(
-                        lst_time, '%Y-%m-%d %H:%M:%S')).seconds > 0:
+                if (
+                    datetime.datetime.strptime(message.get("time"), "%Y-%m-%d %H:%M:%S")
+                    - datetime.datetime.strptime(lst_time, "%Y-%m-%d %H:%M:%S")
+                ).seconds > 0:
                     ret_messages.append(message)
                 else:
                     break
